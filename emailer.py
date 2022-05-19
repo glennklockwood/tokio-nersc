@@ -4,6 +4,7 @@ Sends an HTML email with images rendered from Markdown
 """
 
 import os
+import sys
 import argparse
 
 import email
@@ -76,13 +77,17 @@ def emailer(argv=None):
     parser.add_argument("-s", "--subject", type=str, help="Subject")
     parser.add_argument("-f", "--from-addr", type=str, default=None, help="Sender address (default: $USER)")
     parser.add_argument("-t", "--to-addr", type=str, default=None, help="Recipient address (default: $USER)")
-    parser.add_argument("-b", "--body", type=str, default=None, help="Plain text contents of email")
+    parser.add_argument("-b", "--body", type=str, default=None, help="Path to file containing email body")
     parser.add_argument("-i", "--image", type=str, action="append", help="Path to image to include (use multiple times)")
     args = parser.parse_args(argv)
 
+    body = ""
+    with open(args.body, 'r') if args.body != "-" else sys.stdin as text_fp:
+        body = text_fp.read()
+
     send_email(
         subject=args.subject,
-        plain_text=args.body,
+        plain_text=body,
         fromaddr=args.from_addr,
         toaddr=args.to_addr,
         attach_images=args.image)
